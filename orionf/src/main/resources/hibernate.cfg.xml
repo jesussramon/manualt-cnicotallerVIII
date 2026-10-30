@@ -42,8 +42,18 @@
         <property name="hibernate.hbm2ddl.auto">
             update
         </property>
-       
+               <!-- Entidades de ORIONF -->
         <mapping class="py.edu.facitec.orionf.entidades.Rol"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Usuarios"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Facultades"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Proveedores"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Categoria"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Insumos"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Compras"/>
+        <mapping class="py.edu.facitec.orionf.entidades.DetalleCompra"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Solicitudes"/>
+        <mapping class="py.edu.facitec.orionf.entidades.DetalleSolicitud"/>
+        <mapping class="py.edu.facitec.orionf.entidades.Entregas"/>
 
     </session-factory>
 

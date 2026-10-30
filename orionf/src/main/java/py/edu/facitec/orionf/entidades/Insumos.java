@@ -1,3 +1,4 @@
+
 package py.edu.facitec.orionf.entidades;
 
 import java.util.List;
@@ -39,17 +40,10 @@ public class Insumos {
     private Categoria categoria;
 
     @OneToMany(mappedBy = "insumo")
-    private List<Inventarios> inventarios;
-
-    @OneToMany(mappedBy = "insumo")
-    private List<MovimientoInventario> movimientos;
-
-    @OneToMany(mappedBy = "insumo")
     private List<DetalleCompra> detallesCompra;
 
     @OneToMany(mappedBy = "insumo")
     private List<DetalleSolicitud> detallesSolicitud;
-
 
     public int getId() {
         return id;
@@ -107,22 +101,6 @@ public class Insumos {
         this.categoria = categoria;
     }
 
-    public List<Inventarios> getInventarios() {
-        return inventarios;
-    }
-
-    public void setInventarios(List<Inventarios> inventarios) {
-        this.inventarios = inventarios;
-    }
-
-    public List<MovimientoInventario> getMovimientos() {
-        return movimientos;
-    }
-
-    public void setMovimientos(List<MovimientoInventario> movimientos) {
-        this.movimientos = movimientos;
-    }
-
     public List<DetalleCompra> getDetallesCompra() {
         return detallesCompra;
     }
@@ -135,7 +113,8 @@ public class Insumos {
         return detallesSolicitud;
     }
 
-    public void setDetallesSolicitud(List<DetalleSolicitud> detallesSolicitud) {
+    public void setDetallesSolicitud(
+            List<DetalleSolicitud> detallesSolicitud) {
         this.detallesSolicitud = detallesSolicitud;
     }
 }
