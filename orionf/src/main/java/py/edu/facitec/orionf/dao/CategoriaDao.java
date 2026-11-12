@@ -12,9 +12,11 @@ import py.edu.facitec.orionf.utilidades.ConexionHelper;
 public class CategoriaDao {
 
     public void guardar(Categoria categoria) {
+
         Transaction transaccion = null;
 
         try (Session session = ConexionHelper.getSessionFactory().openSession()) {
+
             transaccion = session.beginTransaction();
 
             session.persist(categoria);
@@ -22,6 +24,7 @@ public class CategoriaDao {
             transaccion.commit();
 
         } catch (Exception e) {
+
             if (transaccion != null && transaccion.isActive()) {
                 transaccion.rollback();
             }
@@ -33,6 +36,7 @@ public class CategoriaDao {
     }
 
     public List<Categoria> recuperarTodos() {
+
         try (Session session = ConexionHelper.getSessionFactory().openSession()) {
 
             return session.createQuery(
@@ -41,6 +45,7 @@ public class CategoriaDao {
             ).getResultList();
 
         } catch (Exception e) {
+
             throw new RuntimeException(
                 "Error al listar las categorías", e
             );
@@ -48,23 +53,53 @@ public class CategoriaDao {
     }
 
     public Categoria recuperarPorId(int id) {
+
         try (Session session = ConexionHelper.getSessionFactory().openSession()) {
 
             return session.get(Categoria.class, id);
 
         } catch (Exception e) {
+
             throw new RuntimeException(
                 "Error al buscar la categoría", e
             );
         }
     }
 
+    // metodo para filtrar categorías por nombre
+    public List<Categoria> filtrarCategorias(String filtro) {
+
+        try (Session session = ConexionHelper.getSessionFactory().openSession()) {
+
+            return session.createQuery(
+                "FROM tb_categorias c " +
+                "WHERE UPPER(c.nombre) LIKE :filtro " +
+                "ORDER BY c.nombre",
+                Categoria.class
+            )
+            .setParameter(
+                "filtro",
+                "%" + filtro.trim().toUpperCase() + "%"
+            )
+            .getResultList();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                "Error al filtrar las categorías", e
+            );
+        }
+    }
+
     public void actualizar(Categoria categoria) {
+
         ejecutarTransaccion(session -> session.merge(categoria));
     }
 
     public void eliminar(int id) {
+
         ejecutarTransaccion(session -> {
+
             Categoria categoria = session.get(Categoria.class, id);
 
             if (categoria != null) {
@@ -74,9 +109,11 @@ public class CategoriaDao {
     }
 
     private void ejecutarTransaccion(OperacionHibernate operacion) {
+
         Transaction transaccion = null;
 
         try (Session session = ConexionHelper.getSessionFactory().openSession()) {
+
             transaccion = session.beginTransaction();
 
             operacion.ejecutar(session);
@@ -84,6 +121,7 @@ public class CategoriaDao {
             transaccion.commit();
 
         } catch (Exception e) {
+
             if (transaccion != null && transaccion.isActive()) {
                 transaccion.rollback();
             }
@@ -96,6 +134,7 @@ public class CategoriaDao {
 
     @FunctionalInterface
     private interface OperacionHibernate {
+
         void ejecutar(Session session);
     }
 }

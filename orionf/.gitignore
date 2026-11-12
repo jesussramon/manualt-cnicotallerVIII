@@ -1,1 +1,4 @@
 /target/
+
+# Configuracion privada de Hibernate
+src/main/resources/hibernate.cfg.xml

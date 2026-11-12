@@ -1,4 +1,3 @@
-
 package py.edu.facitec.orionf.dao;
 
 import java.util.List;
@@ -29,7 +28,8 @@ public class ProveedorDao {
             }
 
             throw new RuntimeException(
-                    "Error al guardar el proveedor", e);
+                    "Error al guardar el proveedor", e
+            );
         }
     }
 
@@ -44,7 +44,31 @@ public class ProveedorDao {
 
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error al listar los proveedores", e);
+                    "Error al listar los proveedores", e
+            );
+        }
+    }
+
+    public List<Proveedores> filtrarProveedores(String filtro) {
+        try (Session session =
+                ConexionHelper.getSessionFactory().openSession()) {
+
+            return session.createQuery(
+                    "FROM Proveedores p "
+                    + "WHERE UPPER(p.razonSocial) LIKE :filtro "
+                    + "ORDER BY p.razonSocial",
+                    Proveedores.class
+            )
+            .setParameter(
+                    "filtro",
+                    "%" + filtro.trim().toUpperCase() + "%"
+            )
+            .getResultList();
+
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Error al filtrar los proveedores", e
+            );
         }
     }
 
@@ -56,13 +80,15 @@ public class ProveedorDao {
 
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Error al buscar el proveedor", e);
+                    "Error al buscar el proveedor", e
+            );
         }
     }
 
     public void actualizar(Proveedores proveedor) {
         ejecutarTransaccion(
-                session -> session.merge(proveedor));
+                session -> session.merge(proveedor)
+        );
     }
 
     public void eliminar(Integer id) {
@@ -96,7 +122,8 @@ public class ProveedorDao {
             }
 
             throw new RuntimeException(
-                    "Error al realizar la operación de proveedores", e);
+                    "Error al realizar la operación de proveedores", e
+            );
         }
     }
 

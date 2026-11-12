@@ -1,4 +1,3 @@
-
 package py.edu.facitec.orionf.entidades;
 
 import java.util.List;
@@ -29,6 +28,9 @@ public class Insumos {
 
     @Column(name = "ins_unidad_medida", nullable = false, length = 50)
     private String unidadMedida;
+
+    @Column(name = "ins_cantidad", nullable = false)
+    private int cantidad;
 
     @Column(name = "ins_stock_minimo", nullable = false)
     private int stockMinimo;
@@ -75,6 +77,14 @@ public class Insumos {
 
     public void setUnidadMedida(String unidadMedida) {
         this.unidadMedida = unidadMedida;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
     }
 
     public int getStockMinimo() {

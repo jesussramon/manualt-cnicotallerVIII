@@ -1,37 +1,35 @@
-
 package py.edu.facitec.orionf.controladores;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 
-import py.edu.facitec.orionf.dao.CategoriaDao;
+import py.edu.facitec.orionf.buscadores.BuscadorCategoria;
 import py.edu.facitec.orionf.dao.InsumoDao;
 import py.edu.facitec.orionf.entidades.Categoria;
 import py.edu.facitec.orionf.entidades.Insumos;
 import py.edu.facitec.orionf.interfaces.InterfaceAcciones;
+import py.edu.facitec.orionf.interfaces.InterfaceCategoria;
 import py.edu.facitec.orionf.tablas.ModeloTablaInsumo;
 import py.edu.facitec.orionf.vista.InsumoVentana;
 
-public class InsumoController implements InterfaceAcciones {
+public class InsumoController
+        implements InterfaceAcciones, InterfaceCategoria {
 
     private final InsumoVentana vista;
     private final InsumoDao dao;
-    private final CategoriaDao categoriaDao;
     private final ModeloTablaInsumo modelo;
 
     private Insumos insumoSeleccionado;
+    private Categoria categoriaSeleccionada;
     private boolean modoEdicion = false;
 
     public InsumoController(InsumoVentana vista) {
         this.vista = vista;
         this.dao = new InsumoDao();
-        this.categoriaDao = new CategoriaDao();
         this.modelo = (ModeloTablaInsumo) vista.getTabla().getModel();
 
         configurarEventos();
-        cargarCategorias();
         actualizar();
         cancelar();
     }
@@ -44,29 +42,27 @@ public class InsumoController implements InterfaceAcciones {
         vista.getBtnCancelar().addActionListener(e -> cancelar());
         vista.getBtnSalir().addActionListener(e -> salir());
 
+        vista.getBtnBuscarCategoria()
+                .addActionListener(e -> abrirBuscadorCategoria());
+
         vista.getTabla().getSelectionModel()
-            .addListSelectionListener((ListSelectionEvent e) -> {
-                if (!e.getValueIsAdjusting()) {
-                    seleccionarInsumo();
-                }
-            });
+                .addListSelectionListener((ListSelectionEvent e) -> {
+                    if (!e.getValueIsAdjusting()) {
+                        seleccionarInsumo();
+                    }
+                });
     }
 
-    private void cargarCategorias() {
-        try {
-            vista.getCmbCategoria().removeAllItems();
+    private void abrirBuscadorCategoria() {
+        BuscadorCategoria buscador = new BuscadorCategoria();
+        buscador.setInterface(this);
+        buscador.setVisible(true);
+    }
 
-            List<Categoria> categorias = categoriaDao.recuperarTodos();
-
-            for (Categoria categoria : categorias) {
-                vista.getCmbCategoria().addItem(categoria);
-            }
-
-        } catch (Exception e) {
-            vista.mostrarError(
-                "No se pudieron cargar las categorías: " + e.getMessage()
-            );
-        }
+    @Override
+    public void seleccionarCategoria(Categoria categoria) {
+        categoriaSeleccionada = categoria;
+        vista.getTxtCategoria().setText(categoria.getNombre());
     }
 
     private void cargarInsumos() {
@@ -74,7 +70,8 @@ public class InsumoController implements InterfaceAcciones {
             modelo.setLista(dao.recuperarTodos());
         } catch (Exception e) {
             vista.mostrarError(
-                "No se pudieron cargar los insumos: " + e.getMessage()
+                    "No se pudieron cargar los insumos: "
+                    + e.getMessage()
             );
         }
     }
@@ -91,7 +88,7 @@ public class InsumoController implements InterfaceAcciones {
         }
 
         int filaModelo = vista.getTabla()
-            .convertRowIndexToModel(fila);
+                .convertRowIndexToModel(fila);
 
         insumoSeleccionado = modelo.getInsumo(filaModelo);
 
@@ -101,26 +98,37 @@ public class InsumoController implements InterfaceAcciones {
 
         vista.getTxtNombre().setText(insumoSeleccionado.getNombre());
         vista.getTxtDescripcion().setText(
-            insumoSeleccionado.getDescripcion()
+                insumoSeleccionado.getDescripcion()
         );
         vista.getTxtUnidadMedida().setText(
-            insumoSeleccionado.getUnidadMedida()
+                insumoSeleccionado.getUnidadMedida()
+        );
+        vista.getTxtCantidad().setText(
+                String.valueOf(insumoSeleccionado.getCantidad())
         );
         vista.getTxtStockMinimo().setText(
-            String.valueOf(insumoSeleccionado.getStockMinimo())
+                String.valueOf(insumoSeleccionado.getStockMinimo())
         );
         vista.getChkEstado().setSelected(
-            Boolean.TRUE.equals(insumoSeleccionado.getEstado())
+                Boolean.TRUE.equals(insumoSeleccionado.getEstado())
         );
-        vista.getCmbCategoria().setSelectedItem(
-            insumoSeleccionado.getCategoria()
-        );
+
+        categoriaSeleccionada = insumoSeleccionado.getCategoria();
+
+        if (categoriaSeleccionada != null) {
+            vista.getTxtCategoria().setText(
+                    categoriaSeleccionada.getNombre()
+            );
+        } else {
+            vista.getTxtCategoria().setText("");
+        }
     }
 
     @Override
     public void agregar() {
         modoEdicion = false;
         insumoSeleccionado = null;
+        categoriaSeleccionada = null;
 
         vista.limpiarFormulario();
         vista.getTabla().clearSelection();
@@ -140,35 +148,37 @@ public class InsumoController implements InterfaceAcciones {
         try {
             String nombre = vista.getTxtNombre().getText().trim();
             String descripcion =
-                vista.getTxtDescripcion().getText().trim();
+                    vista.getTxtDescripcion().getText().trim();
             String unidadMedida =
-                vista.getTxtUnidadMedida().getText().trim();
+                    vista.getTxtUnidadMedida().getText().trim();
+            String cantidadTexto =
+                    vista.getTxtCantidad().getText().trim();
             String stockTexto =
-                vista.getTxtStockMinimo().getText().trim();
+                    vista.getTxtStockMinimo().getText().trim();
 
             if (nombre.isEmpty() || unidadMedida.isEmpty()
-                    || stockTexto.isEmpty()) {
+                    || cantidadTexto.isEmpty() || stockTexto.isEmpty()) {
                 vista.mostrarMensaje(
-                    "Completá el nombre, la unidad de medida y el stock mínimo."
+                        "Completá el nombre, la unidad de medida, "
+                        + "la cantidad y el stock mínimo."
                 );
                 return;
             }
 
+            if (categoriaSeleccionada == null) {
+                vista.mostrarMensaje(
+                        "Seleccioná una categoría con el botón (...)."
+                );
+                return;
+            }
+
+            int cantidad = Integer.parseInt(cantidadTexto);
             int stockMinimo = Integer.parseInt(stockTexto);
 
-            if (stockMinimo < 0) {
+            if (cantidad < 0 || stockMinimo < 0) {
                 vista.mostrarMensaje(
-                    "El stock mínimo no puede ser negativo."
-                );
-                return;
-            }
-
-            Categoria categoria =
-                (Categoria) vista.getCmbCategoria().getSelectedItem();
-
-            if (categoria == null) {
-                vista.mostrarMensaje(
-                    "Primero tenés que registrar y seleccionar una categoría."
+                        "La cantidad y el stock mínimo no pueden "
+                        + "ser negativos."
                 );
                 return;
             }
@@ -183,12 +193,13 @@ public class InsumoController implements InterfaceAcciones {
 
             insumo.setNombre(nombre);
             insumo.setDescripcion(
-                descripcion.isEmpty() ? null : descripcion
+                    descripcion.isEmpty() ? null : descripcion
             );
             insumo.setUnidadMedida(unidadMedida);
+            insumo.setCantidad(cantidad);
             insumo.setStockMinimo(stockMinimo);
             insumo.setEstado(vista.getChkEstado().isSelected());
-            insumo.setCategoria(categoria);
+            insumo.setCategoria(categoriaSeleccionada);
 
             if (modoEdicion) {
                 dao.actualizar(insumo);
@@ -203,11 +214,12 @@ public class InsumoController implements InterfaceAcciones {
 
         } catch (NumberFormatException e) {
             vista.mostrarMensaje(
-                "El stock mínimo debe ser un número entero."
+                    "La cantidad y el stock mínimo deben ser "
+                    + "números enteros."
             );
         } catch (Exception e) {
             vista.mostrarError(
-                "No se pudo guardar el insumo: " + e.getMessage()
+                    "No se pudo guardar el insumo: " + e.getMessage()
             );
         }
     }
@@ -216,7 +228,7 @@ public class InsumoController implements InterfaceAcciones {
     public void modificar() {
         if (insumoSeleccionado == null) {
             vista.mostrarMensaje(
-                "Seleccioná un insumo de la tabla para modificarlo."
+                    "Seleccioná un insumo de la tabla para modificarlo."
             );
             return;
         }
@@ -237,7 +249,7 @@ public class InsumoController implements InterfaceAcciones {
     public void eliminar() {
         if (insumoSeleccionado == null) {
             vista.mostrarMensaje(
-                "Seleccioná un insumo de la tabla para eliminarlo."
+                    "Seleccioná un insumo de la tabla para eliminarlo."
             );
             return;
         }
@@ -256,8 +268,9 @@ public class InsumoController implements InterfaceAcciones {
 
         } catch (Exception e) {
             vista.mostrarError(
-                "No se pudo eliminar el insumo. Puede estar relacionado "
-                + "con compras o solicitudes.\n" + e.getMessage()
+                    "No se pudo eliminar el insumo. Puede estar "
+                    + "relacionado con compras o solicitudes.\n"
+                    + e.getMessage()
             );
         }
     }
@@ -266,6 +279,7 @@ public class InsumoController implements InterfaceAcciones {
     public void cancelar() {
         modoEdicion = false;
         insumoSeleccionado = null;
+        categoriaSeleccionada = null;
 
         vista.limpiarFormulario();
         vista.getTabla().clearSelection();

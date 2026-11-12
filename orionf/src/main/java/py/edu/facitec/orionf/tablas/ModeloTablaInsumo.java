@@ -1,4 +1,3 @@
-
 package py.edu.facitec.orionf.tablas;
 
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ public class ModeloTablaInsumo extends AbstractTableModel {
         "Nombre",
         "Descripción",
         "Unidad de medida",
+        "Cantidad",
         "Stock mínimo",
         "Categoría",
         "Estado"
@@ -55,33 +55,36 @@ public class ModeloTablaInsumo extends AbstractTableModel {
         Insumos insumo = lista.get(fila);
 
         switch (columna) {
-            case 0:
-                return insumo.getId();
+        case 0:
+            return insumo.getId();
 
-            case 1:
-                return insumo.getNombre();
+        case 1:
+            return insumo.getNombre();
 
-            case 2:
-                return insumo.getDescripcion();
+        case 2:
+            return insumo.getDescripcion();
 
-            case 3:
-                return insumo.getUnidadMedida();
+        case 3:
+            return insumo.getUnidadMedida();
 
-            case 4:
-                return insumo.getStockMinimo();
+        case 4:
+            return insumo.getCantidad();
 
-            case 5:
-                return insumo.getCategoria() != null
+        case 5:
+            return insumo.getStockMinimo();
+
+        case 6:
+            return insumo.getCategoria() != null
                     ? insumo.getCategoria().getNombre()
                     : "";
 
-            case 6:
-                return Boolean.TRUE.equals(insumo.getEstado())
+        case 7:
+            return Boolean.TRUE.equals(insumo.getEstado())
                     ? "Activo"
                     : "Inactivo";
 
-            default:
-                return null;
+        default:
+            return null;
         }
     }
 }
